@@ -1,6 +1,6 @@
 package co.edu.uniquindio.application.dto;
 
-import javax.management.relation.Role;
+import co.edu.uniquindio.application.model.Role;
 
 public record UserDTO(
         String id,

@@ -1,6 +1,6 @@
 package co.edu.uniquindio.application.dto;
 
-import javax.management.relation.Role;
+import co.edu.uniquindio.application.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
