@@ -13,6 +13,6 @@ public record CreateAccommodationDTO(
         @NotNull Double pricePerNight,
         @NotNull Integer capacity,
         List<String> photos,
-        @NotBlank String ownerId
+        @NotBlank String hostId
 ) {
 }
