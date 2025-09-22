@@ -35,6 +35,21 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    // Spring Boot Starter para aplicaciones web REST
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Spring Boot Starter para JPA (Hibernate)
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    // Driver de MariaDB
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
+
+    // Lombok (para @Getter, @Setter, @Builder, etc.)
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
