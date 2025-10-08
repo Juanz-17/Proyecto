@@ -22,6 +22,7 @@ configurations {
 
 repositories {
     mavenCentral()
+
 }
 
 dependencies {
@@ -54,4 +55,11 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// Configuración para MapStruct
+tasks.withType(JavaCompile) {
+    options.compilerArgs = [
+            '-Amapstruct.defaultComponentModel=spring'
+    ]
 }

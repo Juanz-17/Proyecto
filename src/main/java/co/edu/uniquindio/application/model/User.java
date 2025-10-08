@@ -1,60 +1,58 @@
 package co.edu.uniquindio.application.model;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 import jakarta.persistence.*;
-import lombok.*;
-import java.time.LocalDate;
+import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 public class User {
-
     @Id
-    private String id; // Podrías cambiarlo a Long con @GeneratedValue si prefieres
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    @Column(nullable = false)
     private String name;
 
-    private String phone;
-
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
     private String password;
 
+    private LocalDateTime dateBirth;
+    private String phone;
     private String photoUrl;
 
-    private LocalDate dateBirth;
-
-    private LocalDateTime createdAt;
-
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
     @Enumerated(EnumType.STRING)
-    private UserStatus status;
+    @Column(nullable = false)
+    private Status status = Status.ACTIVE;
 
-    // Relación con alojamientos (un host puede tener muchos alojamientos)
-    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Accommodation> accommodations;
+    @Column(nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Relación con reservas (como guest)
-    @OneToMany(mappedBy = "guest", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reservation> reservations;
+    private Boolean isHost = false;
 
-    // Relación con comentarios (como guest)
-    @OneToMany(mappedBy = "guest", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments;
+    // Relaciones
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private HostProfile hostProfile;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<PasswordResetCode> passwordResetCodes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "guest", cascade = CascadeType.ALL)
+    private List<Booking> bookings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "host", cascade = CascadeType.ALL)
+    private List<Place> places = new ArrayList<>();
 }
-

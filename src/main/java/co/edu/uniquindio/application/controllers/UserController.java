@@ -1,53 +1,84 @@
 package co.edu.uniquindio.application.controllers;
 
-import co.edu.uniquindio.application.dto.CreateUserDTO;
-import co.edu.uniquindio.application.dto.EditUserDTO;
-import co.edu.uniquindio.application.dto.ResponseDTO;
-import co.edu.uniquindio.application.dto.UserDTO;
+import co.edu.uniquindio.application.dto.UserRegistrationRequest;
+import co.edu.uniquindio.application.dto.ApiResponse;
+import co.edu.uniquindio.application.dto.UserResponse;
+import co.edu.uniquindio.application.mappers.UserMapper;
+import co.edu.uniquindio.application.model.User;
+import co.edu.uniquindio.application.services.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
-    @PostMapping
-    public ResponseEntity<ResponseDTO<String>> create(@Valid @RequestBody CreateUserDTO userDTO) throws Exception{
-        //Lógica para crear el usuario
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDTO<>(false, "El registro ha sido exitoso"));
+    private final UserService userService;
+    private final UserMapper userMapper;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        UserResponse response = userMapper.toResponse(user);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/email/{email}")
+    public ResponseEntity<ApiResponse<UserResponse>> getUserByEmail(@PathVariable String email) {
+        User user = userService.getUserByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        UserResponse response = userMapper.toResponse(user);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ResponseDTO<String>> edit(@PathVariable String id, @Valid @RequestBody EditUserDTO userDTO) throws Exception{
-        //Lógica para editar el usuario
-        return ResponseEntity.ok(new ResponseDTO<>(false, "El usuario ha sido actualizado"));
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UserRegistrationRequest request) {
+
+        User userDetails = userMapper.toEntity(request);
+        User updatedUser = userService.updateUser(id, userDetails);
+
+        UserResponse response = userMapper.toResponse(updatedUser);
+        return ResponseEntity.ok(ApiResponse.success(response, "Usuario actualizado exitosamente"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ResponseDTO<String>> delete(@PathVariable String id) throws Exception{
-        //Lógica para eliminar el usuario
-        return ResponseEntity.ok(new ResponseDTO<>(false, "El usuario ha sido eliminado"));
+    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok(ApiResponse.success(null, "Usuario eliminado exitosamente"));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO<UserDTO>> get(@PathVariable String id) throws Exception{
-        //Lógica para consular el usuario
-        return ResponseEntity.ok(new ResponseDTO<>(false, null));
+    @PostMapping("/{id}/activate")
+    public ResponseEntity<ApiResponse<UserResponse>> activateUser(@PathVariable Long id) {
+        User user = userService.activateUser(id);
+        UserResponse response = userMapper.toResponse(user);
+        return ResponseEntity.ok(ApiResponse.success(response, "Usuario activado exitosamente"));
     }
 
-    @GetMapping
-    public ResponseEntity<ResponseDTO<List<UserDTO>>> listAll(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String phone
-    ) {
-        //Lógica para consultar todos los usuarios con filtros
-        List<UserDTO> list = new ArrayList<>();
-        return ResponseEntity.ok(new ResponseDTO<>(false, list));
+    @PostMapping("/{id}/deactivate")
+    public ResponseEntity<ApiResponse<UserResponse>> deactivateUser(@PathVariable Long id) {
+        User user = userService.deactivateUser(id);
+        UserResponse response = userMapper.toResponse(user);
+        return ResponseEntity.ok(ApiResponse.success(response, "Usuario desactivado exitosamente"));
     }
 
+    @PostMapping("/{id}/convert-to-host")
+    public ResponseEntity<ApiResponse<UserResponse>> convertToHost(
+            @PathVariable Long id,
+            @RequestParam String legalDocument,
+            @RequestParam String aboutMe) {
+
+        User user = userService.convertToHost(id, legalDocument, aboutMe);
+        UserResponse response = userMapper.toResponse(user);
+        return ResponseEntity.ok(ApiResponse.success(response, "Usuario convertido a anfitrión exitosamente"));
+    }
 }
