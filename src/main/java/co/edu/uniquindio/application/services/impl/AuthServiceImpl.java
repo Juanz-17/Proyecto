@@ -67,6 +67,9 @@ public class AuthServiceImpl implements AuthService {
         // Eliminar códigos anteriores del usuario
         passwordResetCodeRepository.deleteByUser(user);
 
+        // Eliminar códigos expirados del sistema
+        passwordResetCodeRepository.deleteExpiredCodes(LocalDateTime.now().minusMinutes(15));
+
         // Generar nuevo código
         String code = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
@@ -79,6 +82,7 @@ public class AuthServiceImpl implements AuthService {
 
         // En un caso real, aquí enviaríamos el código por email
         System.out.println("Código de restablecimiento para " + email + ": " + code);
+        System.out.println("Este código expira en 15 minutos");
     }
 
     @Override
@@ -87,8 +91,8 @@ public class AuthServiceImpl implements AuthService {
         PasswordResetCode resetCode = passwordResetCodeRepository.findByCode(code)
                 .orElseThrow(() -> new IllegalArgumentException("Código inválido"));
 
-        // Verificar que el código no haya expirado (24 horas)
-        if (resetCode.getCreatedAt().isBefore(LocalDateTime.now().minusHours(24))) {
+        // Verificar que el código no haya expirado (15 horas)
+        if (resetCode.getCreatedAt().isBefore(LocalDateTime.now().minusMinutes(15))) {
             passwordResetCodeRepository.delete(resetCode);
             throw new IllegalArgumentException("El código ha expirado");
         }
@@ -105,6 +109,35 @@ public class AuthServiceImpl implements AuthService {
 
         // Eliminar código usado
         passwordResetCodeRepository.delete(resetCode);
+
+        return true;
+    }
+
+    // NUEVO MÉTODO: Cambio voluntario de contraseña
+    @Override
+    @Transactional
+    public boolean changePassword(Long userId, String currentPassword, String newPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+        // Verificar contraseña actual
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new IllegalArgumentException("La contraseña actual es incorrecta");
+        }
+
+        // Validar nueva contraseña
+        if (!validatePassword(newPassword)) {
+            throw new IllegalArgumentException("La nueva contraseña no cumple con los requisitos de seguridad");
+        }
+
+        // Verificar que no sea la misma contraseña
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new IllegalArgumentException("La nueva contraseña debe ser diferente a la actual");
+        }
+
+        // Actualizar contraseña
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
 
         return true;
     }

@@ -8,4 +8,5 @@ public interface AuthService {
     void requestPasswordReset(String email);
     boolean resetPassword(String code, String newPassword);
     boolean validatePassword(String password);
+    boolean changePassword(Long userId, String currentPassword, String newPassword);
 }
