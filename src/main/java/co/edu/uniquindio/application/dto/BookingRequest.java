@@ -8,8 +8,9 @@ import java.time.LocalDateTime;
 
 @Data
 public class BookingRequest {
+
     @NotNull(message = "El ID del alojamiento es requerido")
-    private Long placeId;
+    private Long placeId;  // <- Este campo debe existir
 
     @NotNull(message = "La fecha de check-in es requerida")
     @Future(message = "La fecha de check-in debe ser futura")

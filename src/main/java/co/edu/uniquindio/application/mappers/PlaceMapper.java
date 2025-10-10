@@ -10,7 +10,6 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring",
-        uses = {AddressMapper.class, UserMapper.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface PlaceMapper {
 
@@ -22,15 +21,6 @@ public interface PlaceMapper {
     @Mapping(target = "reviews", ignore = true)
     Place toEntity(PlaceCreateRequest request);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "host", ignore = true)
-    @Mapping(target = "bookings", ignore = true)
-    @Mapping(target = "reviews", ignore = true)
-    @Mapping(target = "images", ignore = true) // Para update, manejamos imágenes por separado
-    Place toEntityFromUpdate(PlaceUpdateRequest request);
-
     @Mapping(target = "averageRating", ignore = true)
     @Mapping(target = "reviewCount", ignore = true)
     PlaceResponse toResponse(Place place);
@@ -41,7 +31,7 @@ public interface PlaceMapper {
     @Mapping(target = "host", ignore = true)
     @Mapping(target = "bookings", ignore = true)
     @Mapping(target = "reviews", ignore = true)
-    @Mapping(target = "images", ignore = true) // Para update, manejamos imágenes por separado
+    @Mapping(target = "images", ignore = true)
     void updateEntityFromRequest(PlaceUpdateRequest request, @MappingTarget Place place);
 
     // Método para calcular averageRating y reviewCount

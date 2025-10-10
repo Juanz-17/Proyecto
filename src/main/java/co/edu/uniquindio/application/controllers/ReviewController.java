@@ -1,12 +1,13 @@
 package co.edu.uniquindio.application.controllers;
 
 import co.edu.uniquindio.application.dto.ReplyRequest;
-import co.edu.uniquindio.application.dto.ReviewCreateRequest;
+import co.edu.uniquindio.application.dto.ReviewRequest; // Cambiado a ReviewRequest
 import co.edu.uniquindio.application.dto.ApiResponse;
 import co.edu.uniquindio.application.dto.ReviewResponse;
 import co.edu.uniquindio.application.mappers.ReviewMapper;
 import co.edu.uniquindio.application.model.Review;
 import co.edu.uniquindio.application.model.User;
+import co.edu.uniquindio.application.services.PlaceService;
 import co.edu.uniquindio.application.services.ReviewService;
 import co.edu.uniquindio.application.services.UserService;
 import jakarta.validation.Valid;
@@ -24,18 +25,19 @@ public class ReviewController {
 
     private final ReviewService reviewService;
     private final UserService userService;
+    private final PlaceService placeService;
     private final ReviewMapper reviewMapper;
 
     @PostMapping
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
-            @Valid @RequestBody ReviewCreateRequest request,
-            @RequestParam Long userId) {
+            @Valid @RequestBody ReviewRequest request, // Cambiado a ReviewRequest
+            @RequestParam Long userId,
+            @RequestParam Long placeId) {
 
         User user = userService.getUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-        var place = reviewService.getReviewById(request.getPlaceId())
-                .map(Review::getPlace)
+        var place = placeService.getPlaceById(placeId)
                 .orElseThrow(() -> new IllegalArgumentException("Alojamiento no encontrado"));
 
         // Verificar que el usuario puede reseñar
@@ -93,7 +95,7 @@ public class ReviewController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(
             @PathVariable Long id,
-            @Valid @RequestBody ReviewCreateRequest request) {
+            @Valid @RequestBody ReviewRequest request) { // Cambiado a ReviewRequest
 
         Review reviewDetails = reviewMapper.toEntity(request);
         Review updatedReview = reviewService.updateReview(id, reviewDetails);

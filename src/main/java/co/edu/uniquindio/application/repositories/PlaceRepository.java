@@ -1,6 +1,7 @@
 package co.edu.uniquindio.application.repositories;
 
 import co.edu.uniquindio.application.model.Place;
+import co.edu.uniquindio.application.model.Service;
 import co.edu.uniquindio.application.model.Status;
 import co.edu.uniquindio.application.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -35,6 +36,11 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     // Buscar alojamientos por ciudad y rango de precio
     List<Place> findByAddressCityIgnoreCaseAndNightlyPriceBetweenAndStatus(
             String city, Double minPrice, Double maxPrice, Status status);
+
+    // Buscar alojamientos por servicios - CORREGIDO
+    @Query("SELECT DISTINCT p FROM Place p JOIN p.services s WHERE s IN :services AND p.status = :status")
+    List<Place> findByServicesInAndStatus(@Param("services") List<Service> services, // ← CAMBIADO A Service
+                                          @Param("status") Status status);
 
     // Buscar alojamientos disponibles (sin reservas conflictivas)
     @Query("SELECT p FROM Place p WHERE p.status = :status " +

@@ -114,9 +114,15 @@ public class PlaceController {
             @PathVariable Long id,
             @Valid @RequestBody PlaceUpdateRequest request) {
 
-        // Usar el nuevo método del mapper
-        Place placeDetails = placeMapper.toEntityFromUpdate(request);
-        Place updatedPlace = placeService.updatePlace(id, placeDetails);
+        // Obtener el alojamiento existente
+        Place existingPlace = placeService.getPlaceById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Alojamiento no encontrado"));
+
+        // Actualizar la entidad existente con los datos del request
+        placeMapper.updateEntityFromRequest(request, existingPlace);
+
+        // Guardar los cambios
+        Place updatedPlace = placeService.updatePlace(id, existingPlace);
         PlaceResponse response = placeMapper.toResponse(updatedPlace);
 
         return ResponseEntity.ok(ApiResponse.success(response, "Alojamiento actualizado exitosamente"));
