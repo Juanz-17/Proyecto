@@ -33,19 +33,27 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints públicos
+                        // ENDPOINTS PÚBLICOS - Swagger y API Docs
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/swagger-resources/**").permitAll()
+
+                        // Endpoints de autenticación públicos
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // Endpoints públicos de alojamientos
                         .requestMatchers("/api/places/search/available").permitAll()
                         .requestMatchers("/api/places").permitAll()
                         .requestMatchers("/api/places/{id}").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
-                        // Endpoints que requieren autenticación
+                        // Resto de endpoints requieren autenticación
                         .requestMatchers("/api/users/**").authenticated()
                         .requestMatchers("/api/bookings/**").authenticated()
                         .requestMatchers("/api/reviews/**").authenticated()
 
-                        // Endpoints específicos por roles
+                        // Endpoints por roles
                         .requestMatchers("/api/places/host/**").hasAnyRole("HOST", "ADMIN")
                         .requestMatchers("/api/bookings/host/**").hasAnyRole("HOST", "ADMIN")
                         .requestMatchers("/api/reviews/host/**").hasAnyRole("HOST", "ADMIN")
