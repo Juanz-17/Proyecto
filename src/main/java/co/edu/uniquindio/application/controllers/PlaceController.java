@@ -10,6 +10,9 @@ import co.edu.uniquindio.application.model.User;
 import co.edu.uniquindio.application.services.PlaceService;
 import co.edu.uniquindio.application.services.ReviewService;
 import co.edu.uniquindio.application.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,6 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/places")
 @RequiredArgsConstructor
+@Tag(name = "Alojamientos", description = "API para gestión de alojamientos (propiedades, casas, departamentos)")
 public class PlaceController {
 
     private final PlaceService placeService;
@@ -31,6 +35,16 @@ public class PlaceController {
     private final PlaceMapper placeMapper;
 
     @PostMapping
+    @Operation(
+            summary = "Crear nuevo alojamiento",
+            description = "Registra un nuevo alojamiento en el sistema. Requiere que el usuario sea anfitrión y proporciona detalles completos de la propiedad."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Alojamiento creado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos del alojamiento inválidos"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Anfitrión no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Usuario no autorizado como anfitrión")
+    })
     public ResponseEntity<ApiResponse<PlaceResponse>> createPlace(
             @Valid @RequestBody PlaceCreateRequest request,
             @RequestParam Long hostId) {
@@ -50,6 +64,13 @@ public class PlaceController {
     }
 
     @GetMapping
+    @Operation(
+            summary = "Listar todos los alojamientos",
+            description = "Obtiene la lista completa de alojamientos disponibles en el sistema, incluyendo calificaciones y conteo de reseñas."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de alojamientos obtenida exitosamente")
+    })
     public ResponseEntity<ApiResponse<List<PlaceResponse>>> getAllPlaces() {
         List<Place> places = placeService.getPlacesByPriceRange(0.0, Double.MAX_VALUE);
         List<PlaceResponse> responses = places.stream()
@@ -64,6 +85,14 @@ public class PlaceController {
     }
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Obtener alojamiento por ID",
+            description = "Recupera los detalles completos de un alojamiento específico, incluyendo información del anfitrión, calificación promedio y reseñas."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Alojamiento encontrado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Alojamiento no encontrado")
+    })
     public ResponseEntity<ApiResponse<PlaceResponse>> getPlaceById(@PathVariable Long id) {
         Place place = placeService.getPlaceById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Alojamiento no encontrado"));
@@ -76,6 +105,14 @@ public class PlaceController {
     }
 
     @GetMapping("/search/available")
+    @Operation(
+            summary = "Buscar alojamientos disponibles",
+            description = "Busca alojamientos disponibles según criterios específicos: ciudad, fechas de check-in/check-out, número de huéspedes y rango de precios."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Búsqueda completada exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Parámetros de búsqueda inválidos")
+    })
     public ResponseEntity<ApiResponse<List<PlaceResponse>>> searchAvailablePlaces(
             @RequestParam String city,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkIn,
@@ -97,6 +134,14 @@ public class PlaceController {
     }
 
     @GetMapping("/host/{hostId}")
+    @Operation(
+            summary = "Obtener alojamientos por anfitrión",
+            description = "Lista todos los alojamientos gestionados por un anfitrión específico."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de alojamientos obtenida exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Anfitrión no encontrado")
+    })
     public ResponseEntity<ApiResponse<List<PlaceResponse>>> getPlacesByHost(@PathVariable Long hostId) {
         User host = userService.getUserById(hostId)
                 .orElseThrow(() -> new IllegalArgumentException("Anfitrión no encontrado"));
@@ -110,6 +155,16 @@ public class PlaceController {
     }
 
     @PutMapping("/{id}")
+    @Operation(
+            summary = "Actualizar alojamiento",
+            description = "Actualiza la información de un alojamiento existente. Solo disponible para el anfitrión propietario."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Alojamiento actualizado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos de actualización inválidos"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Alojamiento no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para modificar este alojamiento")
+    })
     public ResponseEntity<ApiResponse<PlaceResponse>> updatePlace(
             @PathVariable Long id,
             @Valid @RequestBody PlaceUpdateRequest request) {
@@ -129,12 +184,31 @@ public class PlaceController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Eliminar alojamiento",
+            description = "Elimina permanentemente un alojamiento del sistema. Solo disponible para el anfitrión propietario."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Alojamiento eliminado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Alojamiento no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para eliminar este alojamiento"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "No se puede eliminar, tiene reservas activas")
+    })
     public ResponseEntity<ApiResponse<Void>> deletePlace(@PathVariable Long id) {
         placeService.deletePlace(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Alojamiento eliminado exitosamente"));
     }
 
     @PostMapping("/{id}/activate")
+    @Operation(
+            summary = "Activar alojamiento",
+            description = "Cambia el estado de un alojamiento a activo, haciéndolo disponible para reservas."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Alojamiento activado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Alojamiento no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para activar este alojamiento")
+    })
     public ResponseEntity<ApiResponse<PlaceResponse>> activatePlace(@PathVariable Long id) {
         Place place = placeService.activatePlace(id);
         PlaceResponse response = placeMapper.toResponse(place);
@@ -142,6 +216,15 @@ public class PlaceController {
     }
 
     @PostMapping("/{id}/deactivate")
+    @Operation(
+            summary = "Desactivar alojamiento",
+            description = "Cambia el estado de un alojamiento a inactivo, evitando nuevas reservas pero manteniendo las existentes."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Alojamiento desactivado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Alojamiento no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para desactivar este alojamiento")
+    })
     public ResponseEntity<ApiResponse<PlaceResponse>> deactivatePlace(@PathVariable Long id) {
         Place place = placeService.deactivatePlace(id);
         PlaceResponse response = placeMapper.toResponse(place);
@@ -149,6 +232,16 @@ public class PlaceController {
     }
 
     @PostMapping("/{id}/images")
+    @Operation(
+            summary = "Agregar imagen al alojamiento",
+            description = "Añade una nueva imagen a la galería de un alojamiento específico."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Imagen agregada exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Alojamiento no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para modificar este alojamiento"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "URL de imagen inválida")
+    })
     public ResponseEntity<ApiResponse<Void>> addImage(
             @PathVariable Long id,
             @RequestParam String imageUrl) {
@@ -158,6 +251,15 @@ public class PlaceController {
     }
 
     @DeleteMapping("/{id}/images")
+    @Operation(
+            summary = "Eliminar imagen del alojamiento",
+            description = "Remueve una imagen específica de la galería de un alojamiento."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Imagen eliminada exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Alojamiento o imagen no encontrada"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para modificar este alojamiento")
+    })
     public ResponseEntity<ApiResponse<Void>> removeImage(
             @PathVariable Long id,
             @RequestParam String imageUrl) {

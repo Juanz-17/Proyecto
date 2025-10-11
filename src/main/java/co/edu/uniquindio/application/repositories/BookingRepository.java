@@ -70,4 +70,22 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("host") User host,
             @Param("startDate") LocalDateTime startDate,
             @Param("endDate") LocalDateTime endDate);
+
+    // Filtros por fechas
+    List<Booking> findByCheckInBetween(LocalDateTime start, LocalDateTime end);
+    List<Booking> findByCheckOutBetween(LocalDateTime start, LocalDateTime end);
+
+    // Filtros combinados para anfitrión
+    @Query("SELECT b FROM Booking b WHERE b.place.host = :host AND b.status = :status AND b.checkIn BETWEEN :startDate AND :endDate")
+    List<Booking> findByHostAndStatusAndDateRange(
+            @Param("host") User host,
+            @Param("status") BookingStatus status,
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate);
+
+    // Filtros combinados para huésped
+    @Query("SELECT b FROM Booking b WHERE b.guest = :guest AND b.status = :status ORDER BY b.createdAt DESC")
+    List<Booking> findByGuestAndStatusOrderByCreatedAtDesc(
+            @Param("guest") User guest,
+            @Param("status") BookingStatus status);
 }

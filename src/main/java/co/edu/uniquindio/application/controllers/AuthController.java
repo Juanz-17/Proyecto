@@ -9,6 +9,9 @@ import co.edu.uniquindio.application.mappers.UserMapper;
 import co.edu.uniquindio.application.model.User;
 import co.edu.uniquindio.application.services.AuthService;
 import co.edu.uniquindio.application.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Autenticación", description = "API para registro, login y gestión de contraseñas de usuarios")
 public class AuthController {
 
     private final AuthService authService;
@@ -25,6 +29,15 @@ public class AuthController {
     private final UserMapper userMapper;
 
     @PostMapping("/register")
+    @Operation(
+            summary = "Registrar nuevo usuario",
+            description = "Crea una nueva cuenta de usuario en el sistema. Los usuarios pueden registrarse como huéspedes normales o como anfitriones (hosts)."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Usuario registrado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos de registro inválidos"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El email ya está registrado")
+    })
     public ResponseEntity<ApiResponse<UserResponse>> register(
             @Valid @RequestBody UserRegistrationRequest request) {
 
@@ -46,6 +59,15 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(
+            summary = "Iniciar sesión",
+            description = "Autentica a un usuario con su email y contraseña. Retorna información del usuario y token JWT para acceder a endpoints protegidos."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Login exitoso"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Credenciales inválidas"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     public ResponseEntity<ApiResponse<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request) {
 
@@ -64,12 +86,29 @@ public class AuthController {
     }
 
     @PostMapping("/password-reset/request")
+    @Operation(
+            summary = "Solicitar restablecimiento de contraseña",
+            description = "Envía un código de verificación al email del usuario para permitir el restablecimiento de su contraseña."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Código enviado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Email no registrado en el sistema")
+    })
     public ResponseEntity<ApiResponse<Void>> requestPasswordReset(@RequestParam String email) {
         authService.requestPasswordReset(email);
         return ResponseEntity.ok(ApiResponse.success(null, "Se ha enviado un código de restablecimiento a tu email"));
     }
 
     @PostMapping("/password-reset/confirm")
+    @Operation(
+            summary = "Confirmar restablecimiento de contraseña",
+            description = "Valida el código de verificación y actualiza la contraseña del usuario con la nueva contraseña proporcionada."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Contraseña restablecida exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Código inválido o expirado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Solicitud de restablecimiento no encontrada")
+    })
     public ResponseEntity<ApiResponse<Void>> resetPassword(
             @RequestParam String code,
             @RequestParam String newPassword) {

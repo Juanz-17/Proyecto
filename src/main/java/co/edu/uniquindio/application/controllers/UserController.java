@@ -6,22 +6,33 @@ import co.edu.uniquindio.application.dto.UserResponse;
 import co.edu.uniquindio.application.mappers.UserMapper;
 import co.edu.uniquindio.application.model.User;
 import co.edu.uniquindio.application.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
+@Tag(name = "Usuarios", description = "API para gestión de usuarios del sistema (huéspedes y anfitriones)")
 public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Obtener usuario por ID",
+            description = "Recupera la información completa de un usuario específico utilizando su ID único."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario encontrado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
@@ -31,6 +42,14 @@ public class UserController {
     }
 
     @GetMapping("/email/{email}")
+    @Operation(
+            summary = "Obtener usuario por email",
+            description = "Busca y recupera un usuario específico utilizando su dirección de email."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario encontrado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     public ResponseEntity<ApiResponse<UserResponse>> getUserByEmail(@PathVariable String email) {
         User user = userService.getUserByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
@@ -40,6 +59,16 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
+    @Operation(
+            summary = "Actualizar usuario",
+            description = "Actualiza la información de perfil de un usuario existente. Campos como email pueden requerir verificación adicional."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario actualizado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos de actualización inválidos"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El email ya está en uso por otro usuario")
+    })
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable Long id,
             @Valid @RequestBody UserRegistrationRequest request) {
@@ -52,12 +81,30 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Eliminar usuario",
+            description = "Elimina permanentemente una cuenta de usuario del sistema. Esta acción puede estar sujeta a restricciones si el usuario tiene reservas activas."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario eliminado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para eliminar este usuario"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "No se puede eliminar, usuario tiene reservas activas o alojamientos")
+    })
     public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Usuario eliminado exitosamente"));
     }
 
     @PostMapping("/{id}/activate")
+    @Operation(
+            summary = "Activar usuario",
+            description = "Reactiva una cuenta de usuario que estaba desactivada, permitiéndole acceder nuevamente al sistema."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario activado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+    })
     public ResponseEntity<ApiResponse<UserResponse>> activateUser(@PathVariable Long id) {
         User user = userService.activateUser(id);
         UserResponse response = userMapper.toResponse(user);
@@ -65,6 +112,15 @@ public class UserController {
     }
 
     @PostMapping("/{id}/deactivate")
+    @Operation(
+            summary = "Desactivar usuario",
+            description = "Desactiva temporalmente una cuenta de usuario, impidiendo que acceda al sistema pero manteniendo sus datos."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario desactivado exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "No se puede desactivar, usuario tiene reservas activas")
+    })
     public ResponseEntity<ApiResponse<UserResponse>> deactivateUser(@PathVariable Long id) {
         User user = userService.deactivateUser(id);
         UserResponse response = userMapper.toResponse(user);
@@ -72,6 +128,16 @@ public class UserController {
     }
 
     @PostMapping("/{id}/convert-to-host")
+    @Operation(
+            summary = "Convertir usuario a anfitrión",
+            description = "Convierte un usuario huésped en anfitrión, permitiéndole publicar y gestionar alojamientos. Requiere documentación legal e información de perfil."
+    )
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario convertido a anfitrión exitosamente"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Documentación legal o información de perfil inválida"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El usuario ya es anfitrión")
+    })
     public ResponseEntity<ApiResponse<UserResponse>> convertToHost(
             @PathVariable Long id,
             @RequestParam String legalDocument,

@@ -137,13 +137,12 @@ public class BookingServiceImpl implements BookingService {
             throw new IllegalArgumentException("No se puede cancelar una reserva completada");
         }
 
-        // Verificar política de cancelación (aquí podrías agregar lógica más compleja)
+        // Verificar política de cancelación (48 horas antes)
         LocalDateTime now = LocalDateTime.now();
         long hoursUntilCheckIn = ChronoUnit.HOURS.between(now, booking.getCheckIn());
 
-        // Por ejemplo, no permitir cancelación menos de 24 horas antes
-        if (hoursUntilCheckIn < 24) {
-            throw new IllegalArgumentException("No se puede cancelar menos de 24 horas antes del check-in");
+        if (hoursUntilCheckIn < 48) {
+            throw new IllegalArgumentException("No se puede cancelar menos de 48 horas antes del check-in");
         }
 
         booking.setStatus(BookingStatus.CANCELLED);

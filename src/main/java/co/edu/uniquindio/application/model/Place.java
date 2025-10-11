@@ -70,4 +70,23 @@ public class Place {
             throw new IllegalStateException("No se pueden agregar más de 10 imágenes");
         }
     }
+
+    @Column(name = "main_image_index")
+    private Integer mainImageIndex = 0; // Índice de la imagen principal
+
+    // Método helper para obtener la URL de la imagen principal
+    public String getMainImageUrl() {
+        if (images != null && !images.isEmpty() && mainImageIndex < images.size()) {
+            return images.get(mainImageIndex);
+        }
+        return images != null && !images.isEmpty() ? images.get(0) : null;
+    }
+
+    // Método para cambiar la imagen principal
+    public void setMainImage(int index) {
+        if (images != null && index >= 0 && index < images.size()) {
+            this.mainImageIndex = index;
+        }
+    }
+
 }
