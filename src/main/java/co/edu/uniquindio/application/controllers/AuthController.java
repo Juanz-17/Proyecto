@@ -10,6 +10,7 @@ import co.edu.uniquindio.application.model.User;
 import co.edu.uniquindio.application.services.AuthService;
 import co.edu.uniquindio.application.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -94,7 +95,10 @@ public class AuthController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Código enviado exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Email no registrado en el sistema")
     })
-    public ResponseEntity<ApiResponse<Void>> requestPasswordReset(@RequestParam String email) {
+    public ResponseEntity<ApiResponse<Void>> requestPasswordReset(
+            @Parameter(description = "Email del usuario que solicita el restablecimiento", required = true, example = "usuario@ejemplo.com")
+            @RequestParam String email) {
+
         authService.requestPasswordReset(email);
         return ResponseEntity.ok(ApiResponse.success(null, "Se ha enviado un código de restablecimiento a tu email"));
     }
@@ -110,7 +114,10 @@ public class AuthController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Solicitud de restablecimiento no encontrada")
     })
     public ResponseEntity<ApiResponse<Void>> resetPassword(
+            @Parameter(description = "Código de verificación recibido por email", required = true, example = "ABC123")
             @RequestParam String code,
+
+            @Parameter(description = "Nueva contraseña del usuario", required = true, example = "nuevaContraseña123")
             @RequestParam String newPassword) {
 
         authService.resetPassword(code, newPassword);

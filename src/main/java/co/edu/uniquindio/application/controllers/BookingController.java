@@ -11,18 +11,17 @@ import co.edu.uniquindio.application.services.BookingService;
 import co.edu.uniquindio.application.services.PlaceService;
 import co.edu.uniquindio.application.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -49,6 +48,8 @@ public class BookingController {
     })
     public ResponseEntity<ApiResponse<BookingResponse>> createBooking(
             @Valid @RequestBody BookingRequest request,
+
+            @Parameter(description = "ID del huésped que realiza la reserva", required = true, example = "1")
             @RequestParam Long guestId) {
 
         User guest = userService.getUserById(guestId)
@@ -77,7 +78,10 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Reserva encontrada exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Reserva no encontrada")
     })
-    public ResponseEntity<ApiResponse<BookingResponse>> getBookingById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<BookingResponse>> getBookingById(
+            @Parameter(description = "ID único de la reserva", required = true, example = "1")
+            @PathVariable Long id) {
+
         Booking booking = bookingService.getBookingById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
 
@@ -94,7 +98,10 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de reservas obtenida exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Huésped no encontrado")
     })
-    public ResponseEntity<ApiResponse<List<BookingResponse>>> getBookingsByGuest(@PathVariable Long guestId) {
+    public ResponseEntity<ApiResponse<List<BookingResponse>>> getBookingsByGuest(
+            @Parameter(description = "ID del huésped", required = true, example = "1")
+            @PathVariable Long guestId) {
+
         User guest = userService.getUserById(guestId)
                 .orElseThrow(() -> new IllegalArgumentException("Huésped no encontrado"));
 
@@ -115,7 +122,10 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de reservas obtenida exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Anfitrión no encontrado")
     })
-    public ResponseEntity<ApiResponse<List<BookingResponse>>> getBookingsByHost(@PathVariable Long hostId) {
+    public ResponseEntity<ApiResponse<List<BookingResponse>>> getBookingsByHost(
+            @Parameter(description = "ID del anfitrión", required = true, example = "2")
+            @PathVariable Long hostId) {
+
         User host = userService.getUserById(hostId)
                 .orElseThrow(() -> new IllegalArgumentException("Anfitrión no encontrado"));
 
@@ -139,7 +149,10 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para modificar esta reserva")
     })
     public ResponseEntity<ApiResponse<BookingResponse>> updateBookingStatus(
+            @Parameter(description = "ID de la reserva a actualizar", required = true, example = "1")
             @PathVariable Long id,
+
+            @Parameter(description = "Nuevo estado de la reserva", required = true, example = "CONFIRMED")
             @RequestParam BookingStatus status) {
 
         Booking booking = bookingService.updateBookingStatus(id, status);
@@ -160,7 +173,10 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para cancelar esta reserva")
     })
     public ResponseEntity<ApiResponse<BookingResponse>> cancelBooking(
+            @Parameter(description = "ID de la reserva a cancelar", required = true, example = "1")
             @PathVariable Long id,
+
+            @Parameter(description = "Razón de la cancelación", required = true, example = "Cambio de planes")
             @RequestParam String reason) {
 
         bookingService.cancelBooking(id, reason);
@@ -180,7 +196,10 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Anfitrión no encontrado")
     })
     public ResponseEntity<ApiResponse<HostMetricsResponse>> getHostMetrics(
+            @Parameter(description = "ID del anfitrión", required = true, example = "2")
             @PathVariable Long hostId,
+
+            @Parameter(description = "Estado de reserva para filtrar", required = true, example = "CONFIRMED")
             @RequestParam BookingStatus status) {
 
         User host = userService.getUserById(hostId)
@@ -188,7 +207,6 @@ public class BookingController {
 
         long bookingCount = bookingService.getBookingCountByHostAndStatus(host, status);
 
-        // Crear un DTO específico para las métricas
         HostMetricsResponse metrics = new HostMetricsResponse(hostId, status, bookingCount);
 
         return ResponseEntity.ok(ApiResponse.success(metrics));

@@ -7,6 +7,7 @@ import co.edu.uniquindio.application.mappers.UserMapper;
 import co.edu.uniquindio.application.model.User;
 import co.edu.uniquindio.application.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -33,7 +34,10 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario encontrado exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
-    public ResponseEntity<ApiResponse<UserResponse>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<UserResponse>> getUserById(
+            @Parameter(description = "ID único del usuario", required = true, example = "1")
+            @PathVariable Long id) {
+
         User user = userService.getUserById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
@@ -50,7 +54,10 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario encontrado exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
-    public ResponseEntity<ApiResponse<UserResponse>> getUserByEmail(@PathVariable String email) {
+    public ResponseEntity<ApiResponse<UserResponse>> getUserByEmail(
+            @Parameter(description = "Email del usuario a buscar", required = true, example = "usuario@ejemplo.com")
+            @PathVariable String email) {
+
         User user = userService.getUserByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
@@ -70,7 +77,9 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El email ya está en uso por otro usuario")
     })
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+            @Parameter(description = "ID del usuario a actualizar", required = true, example = "1")
             @PathVariable Long id,
+
             @Valid @RequestBody UserRegistrationRequest request) {
 
         User userDetails = userMapper.toEntity(request);
@@ -91,7 +100,10 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para eliminar este usuario"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "No se puede eliminar, usuario tiene reservas activas o alojamientos")
     })
-    public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteUser(
+            @Parameter(description = "ID del usuario a eliminar", required = true, example = "1")
+            @PathVariable Long id) {
+
         userService.deleteUser(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Usuario eliminado exitosamente"));
     }
@@ -105,7 +117,10 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Usuario activado exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
-    public ResponseEntity<ApiResponse<UserResponse>> activateUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<UserResponse>> activateUser(
+            @Parameter(description = "ID del usuario a activar", required = true, example = "1")
+            @PathVariable Long id) {
+
         User user = userService.activateUser(id);
         UserResponse response = userMapper.toResponse(user);
         return ResponseEntity.ok(ApiResponse.success(response, "Usuario activado exitosamente"));
@@ -121,7 +136,10 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "No se puede desactivar, usuario tiene reservas activas")
     })
-    public ResponseEntity<ApiResponse<UserResponse>> deactivateUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<UserResponse>> deactivateUser(
+            @Parameter(description = "ID del usuario a desactivar", required = true, example = "1")
+            @PathVariable Long id) {
+
         User user = userService.deactivateUser(id);
         UserResponse response = userMapper.toResponse(user);
         return ResponseEntity.ok(ApiResponse.success(response, "Usuario desactivado exitosamente"));
@@ -139,8 +157,13 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El usuario ya es anfitrión")
     })
     public ResponseEntity<ApiResponse<UserResponse>> convertToHost(
+            @Parameter(description = "ID del usuario a convertir", required = true, example = "1")
             @PathVariable Long id,
+
+            @Parameter(description = "Documento legal de identificación", required = true, example = "123456789")
             @RequestParam String legalDocument,
+
+            @Parameter(description = "Información sobre el anfitrión", required = true, example = "Soy un anfitrión experimentado...")
             @RequestParam String aboutMe) {
 
         User user = userService.convertToHost(id, legalDocument, aboutMe);

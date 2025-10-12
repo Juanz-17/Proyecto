@@ -11,6 +11,7 @@ import co.edu.uniquindio.application.services.PlaceService;
 import co.edu.uniquindio.application.services.ReviewService;
 import co.edu.uniquindio.application.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -46,7 +47,11 @@ public class ReviewController {
     })
     public ResponseEntity<ApiResponse<ReviewResponse>> createReview(
             @Valid @RequestBody ReviewRequest request,
+
+            @Parameter(description = "ID del usuario que crea la reseña", required = true, example = "1")
             @RequestParam Long userId,
+
+            @Parameter(description = "ID del alojamiento a reseñar", required = true, example = "1")
             @RequestParam Long placeId) {
 
         User user = userService.getUserById(userId)
@@ -80,7 +85,10 @@ public class ReviewController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Reseña encontrada exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Reseña no encontrada")
     })
-    public ResponseEntity<ApiResponse<ReviewResponse>> getReviewById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<ReviewResponse>> getReviewById(
+            @Parameter(description = "ID único de la reseña", required = true, example = "1")
+            @PathVariable Long id) {
+
         Review review = reviewService.getReviewById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reseña no encontrada"));
 
@@ -97,7 +105,10 @@ public class ReviewController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de reseñas obtenida exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Alojamiento no encontrado")
     })
-    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviewsByPlace(@PathVariable Long placeId) {
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviewsByPlace(
+            @Parameter(description = "ID del alojamiento", required = true, example = "1")
+            @PathVariable Long placeId) {
+
         var place = placeService.getPlaceById(placeId)
                 .orElseThrow(() -> new IllegalArgumentException("Alojamiento no encontrado"));
 
@@ -118,7 +129,10 @@ public class ReviewController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de reseñas obtenida exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
-    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviewsByUser(@PathVariable Long userId) {
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviewsByUser(
+            @Parameter(description = "ID del usuario", required = true, example = "1")
+            @PathVariable Long userId) {
+
         User user = userService.getUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
@@ -142,7 +156,9 @@ public class ReviewController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para modificar esta reseña")
     })
     public ResponseEntity<ApiResponse<ReviewResponse>> updateReview(
+            @Parameter(description = "ID de la reseña a actualizar", required = true, example = "1")
             @PathVariable Long id,
+
             @Valid @RequestBody ReviewRequest request) {
 
         Review reviewDetails = reviewMapper.toEntity(request);
@@ -162,7 +178,10 @@ public class ReviewController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Reseña no encontrada"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para eliminar esta reseña")
     })
-    public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteReview(
+            @Parameter(description = "ID de la reseña a eliminar", required = true, example = "1")
+            @PathVariable Long id) {
+
         reviewService.deleteReview(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Reseña eliminada exitosamente"));
     }
@@ -180,8 +199,12 @@ public class ReviewController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "Ya existe una respuesta para esta reseña")
     })
     public ResponseEntity<ApiResponse<ReviewResponse>> addReply(
+            @Parameter(description = "ID de la reseña a responder", required = true, example = "1")
             @PathVariable Long id,
+
             @Valid @RequestBody ReplyRequest request,
+
+            @Parameter(description = "ID del anfitrión que responde", required = true, example = "2")
             @RequestParam Long hostId) {
 
         User host = userService.getUserById(hostId)
@@ -202,7 +225,10 @@ public class ReviewController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de reseñas con respuestas obtenida exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Anfitrión no encontrado")
     })
-    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviewsWithReplies(@PathVariable Long hostId) {
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviewsWithReplies(
+            @Parameter(description = "ID del anfitrión", required = true, example = "2")
+            @PathVariable Long hostId) {
+
         User host = userService.getUserById(hostId)
                 .orElseThrow(() -> new IllegalArgumentException("Anfitrión no encontrado"));
 
@@ -223,7 +249,10 @@ public class ReviewController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Lista de reseñas sin respuestas obtenida exitosamente"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Anfitrión no encontrado")
     })
-    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviewsWithoutReplies(@PathVariable Long hostId) {
+    public ResponseEntity<ApiResponse<List<ReviewResponse>>> getReviewsWithoutReplies(
+            @Parameter(description = "ID del anfitrión", required = true, example = "2")
+            @PathVariable Long hostId) {
+
         User host = userService.getUserById(hostId)
                 .orElseThrow(() -> new IllegalArgumentException("Anfitrión no encontrado"));
 
