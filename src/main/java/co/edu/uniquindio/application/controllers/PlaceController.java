@@ -95,8 +95,8 @@ public class PlaceController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Alojamiento no encontrado")
     })
     public ResponseEntity<ApiResponse<PlaceResponse>> getPlaceById(
-            @Parameter(description = "ID único del alojamiento", required = true, example = "1")
-            @PathVariable Long id) {
+            @Parameter(name = "id", description = "ID único del alojamiento", required = true, example = "1")
+            @PathVariable("id") Long id) {
 
         Place place = placeService.getPlaceById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Alojamiento no encontrado"));
@@ -158,8 +158,8 @@ public class PlaceController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Anfitrión no encontrado")
     })
     public ResponseEntity<ApiResponse<List<PlaceResponse>>> getPlacesByHost(
-            @Parameter(description = "ID del anfitrión", required = true, example = "1")
-            @PathVariable Long hostId) {
+            @Parameter(name = "hostId", description = "ID del anfitrión", required = true, example = "1")
+            @PathVariable("hostId") Long hostId) {
 
         User host = userService.getUserById(hostId)
                 .orElseThrow(() -> new IllegalArgumentException("Anfitrión no encontrado"));
@@ -184,8 +184,8 @@ public class PlaceController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para modificar este alojamiento")
     })
     public ResponseEntity<ApiResponse<PlaceResponse>> updatePlace(
-            @Parameter(description = "ID del alojamiento a actualizar", required = true, example = "1")
-            @PathVariable Long id,
+            @Parameter(name = "id", description = "ID del alojamiento a actualizar", required = true, example = "1")
+            @PathVariable("id") Long id,
 
             @Valid @RequestBody PlaceUpdateRequest request) {
 
@@ -212,8 +212,8 @@ public class PlaceController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "No se puede eliminar, tiene reservas activas")
     })
     public ResponseEntity<ApiResponse<Void>> deletePlace(
-            @Parameter(description = "ID del alojamiento a eliminar", required = true, example = "1")
-            @PathVariable Long id) {
+            @Parameter(name = "id", description = "ID del alojamiento a eliminar", required = true, example = "1")
+            @PathVariable("id") Long id) {
 
         placeService.deletePlace(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Alojamiento eliminado exitosamente"));
@@ -230,8 +230,8 @@ public class PlaceController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para activar este alojamiento")
     })
     public ResponseEntity<ApiResponse<PlaceResponse>> activatePlace(
-            @Parameter(description = "ID del alojamiento a activar", required = true, example = "1")
-            @PathVariable Long id) {
+            @Parameter(name = "id",description = "ID del alojamiento a activar", required = true, example = "1")
+            @PathVariable("id") Long id) {
 
         Place place = placeService.activatePlace(id);
         PlaceResponse response = placeMapper.toResponse(place);
@@ -249,8 +249,8 @@ public class PlaceController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para desactivar este alojamiento")
     })
     public ResponseEntity<ApiResponse<PlaceResponse>> deactivatePlace(
-            @Parameter(description = "ID del alojamiento a desactivar", required = true, example = "1")
-            @PathVariable Long id) {
+            @Parameter(name = "id", description = "ID del alojamiento a desactivar", required = true, example = "1")
+            @PathVariable("id") Long id) {
 
         Place place = placeService.deactivatePlace(id);
         PlaceResponse response = placeMapper.toResponse(place);
