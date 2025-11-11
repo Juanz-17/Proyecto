@@ -33,6 +33,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
     // Base de datos
+    implementation 'org.mariadb.jdbc:mariadb-java-client:3.3.3'
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 
     // Lombok

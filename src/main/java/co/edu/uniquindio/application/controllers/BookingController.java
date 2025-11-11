@@ -79,8 +79,8 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Reserva no encontrada")
     })
     public ResponseEntity<ApiResponse<BookingResponse>> getBookingById(
-            @Parameter(description = "ID único de la reserva", required = true, example = "1")
-            @PathVariable Long id) {
+            @Parameter(name = "id", description = "ID único de la reserva", required = true, example = "1")
+            @PathVariable("id") Long id) {
 
         Booking booking = bookingService.getBookingById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reserva no encontrada"));
@@ -99,8 +99,8 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Huésped no encontrado")
     })
     public ResponseEntity<ApiResponse<List<BookingResponse>>> getBookingsByGuest(
-            @Parameter(description = "ID del huésped", required = true, example = "1")
-            @PathVariable Long guestId) {
+            @Parameter(name = "guestId", description = "ID del huésped", required = true, example = "1")
+            @PathVariable("guestId") Long guestId) {
 
         User guest = userService.getUserById(guestId)
                 .orElseThrow(() -> new IllegalArgumentException("Huésped no encontrado"));
@@ -123,8 +123,8 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Anfitrión no encontrado")
     })
     public ResponseEntity<ApiResponse<List<BookingResponse>>> getBookingsByHost(
-            @Parameter(description = "ID del anfitrión", required = true, example = "2")
-            @PathVariable Long hostId) {
+            @Parameter(name = "hostId", description = "ID del anfitrión", required = true, example = "2")
+            @PathVariable("hostId") Long hostId) {
 
         User host = userService.getUserById(hostId)
                 .orElseThrow(() -> new IllegalArgumentException("Anfitrión no encontrado"));
@@ -149,8 +149,8 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para modificar esta reserva")
     })
     public ResponseEntity<ApiResponse<BookingResponse>> updateBookingStatus(
-            @Parameter(description = "ID de la reserva a actualizar", required = true, example = "1")
-            @PathVariable Long id,
+            @Parameter(name = "id", description = "ID de la reserva a actualizar", required = true, example = "1")
+            @PathVariable("id") Long id,
 
             @Parameter(description = "Nuevo estado de la reserva", required = true, example = "CONFIRMED")
             @RequestParam BookingStatus status) {
@@ -173,8 +173,8 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para cancelar esta reserva")
     })
     public ResponseEntity<ApiResponse<BookingResponse>> cancelBooking(
-            @Parameter(description = "ID de la reserva a cancelar", required = true, example = "1")
-            @PathVariable Long id,
+            @Parameter(name = "id", description = "ID de la reserva a cancelar", required = true, example = "1")
+            @PathVariable("id") Long id,
 
             @Parameter(description = "Razón de la cancelación", required = true, example = "Cambio de planes")
             @RequestParam String reason) {
@@ -196,8 +196,8 @@ public class BookingController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Anfitrión no encontrado")
     })
     public ResponseEntity<ApiResponse<HostMetricsResponse>> getHostMetrics(
-            @Parameter(description = "ID del anfitrión", required = true, example = "2")
-            @PathVariable Long hostId,
+            @Parameter(name = "hostId", description = "ID del anfitrión", required = true, example = "2")
+            @PathVariable("hostId") Long hostId,
 
             @Parameter(description = "Estado de reserva para filtrar", required = true, example = "CONFIRMED")
             @RequestParam BookingStatus status) {

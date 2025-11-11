@@ -35,8 +35,8 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     public ResponseEntity<ApiResponse<UserResponse>> getUserById(
-            @Parameter(description = "ID único del usuario", required = true, example = "1")
-            @PathVariable Long id) {
+            @Parameter(name = "id", description = "ID único del usuario", required = true, example = "1")
+            @PathVariable("id") Long id) {
 
         User user = userService.getUserById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
@@ -55,8 +55,8 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     public ResponseEntity<ApiResponse<UserResponse>> getUserByEmail(
-            @Parameter(description = "Email del usuario a buscar", required = true, example = "usuario@ejemplo.com")
-            @PathVariable String email) {
+            @Parameter(name = "email", description = "Email del usuario a buscar", required = true, example = "usuario@ejemplo.com")
+            @PathVariable("email") String email) {
 
         User user = userService.getUserByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
@@ -77,8 +77,8 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El email ya está en uso por otro usuario")
     })
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
-            @Parameter(description = "ID del usuario a actualizar", required = true, example = "1")
-            @PathVariable Long id,
+            @Parameter(name = "id", description = "ID del usuario a actualizar", required = true, example = "1")
+            @PathVariable("id") Long id,
 
             @Valid @RequestBody UserRegistrationRequest request) {
 
@@ -101,8 +101,8 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "No se puede eliminar, usuario tiene reservas activas o alojamientos")
     })
     public ResponseEntity<ApiResponse<Void>> deleteUser(
-            @Parameter(description = "ID del usuario a eliminar", required = true, example = "1")
-            @PathVariable Long id) {
+            @Parameter(name = "id", description = "ID del usuario a eliminar", required = true, example = "1")
+            @PathVariable("id") Long id) {
 
         userService.deleteUser(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Usuario eliminado exitosamente"));
@@ -118,8 +118,8 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
     public ResponseEntity<ApiResponse<UserResponse>> activateUser(
-            @Parameter(description = "ID del usuario a activar", required = true, example = "1")
-            @PathVariable Long id) {
+            @Parameter(name = "id", description = "ID del usuario a activar", required = true, example = "1")
+            @PathVariable("id") Long id) {
 
         User user = userService.activateUser(id);
         UserResponse response = userMapper.toResponse(user);
@@ -137,8 +137,8 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "No se puede desactivar, usuario tiene reservas activas")
     })
     public ResponseEntity<ApiResponse<UserResponse>> deactivateUser(
-            @Parameter(description = "ID del usuario a desactivar", required = true, example = "1")
-            @PathVariable Long id) {
+            @Parameter(name = "id", description = "ID del usuario a desactivar", required = true, example = "1")
+            @PathVariable("id") Long id) {
 
         User user = userService.deactivateUser(id);
         UserResponse response = userMapper.toResponse(user);
@@ -157,8 +157,8 @@ public class UserController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El usuario ya es anfitrión")
     })
     public ResponseEntity<ApiResponse<UserResponse>> convertToHost(
-            @Parameter(description = "ID del usuario a convertir", required = true, example = "1")
-            @PathVariable Long id,
+            @Parameter(name = "id", description = "ID del usuario a convertir", required = true, example = "1")
+            @PathVariable("id") Long id,
 
             @Parameter(description = "Documento legal de identificación", required = true, example = "123456789")
             @RequestParam String legalDocument,
