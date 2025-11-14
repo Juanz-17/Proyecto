@@ -38,6 +38,6 @@ public interface UserMapper {
     @Mapping(target = "reviews", ignore = true)
     @Mapping(target = "bookings", ignore = true)
     @Mapping(target = "places", ignore = true)
-    @Mapping(target = "dateBirth", ignore = true) // Agregar este
+    @Mapping(target = "dateBirth", source = "dateBirth")
     void updateEntityFromRequest(UserRegistrationRequest request, @MappingTarget User user);
 }

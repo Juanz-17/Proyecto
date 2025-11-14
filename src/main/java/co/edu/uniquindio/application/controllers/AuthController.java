@@ -7,6 +7,7 @@ import co.edu.uniquindio.application.dto.AuthResponse;
 import co.edu.uniquindio.application.dto.UserResponse;
 import co.edu.uniquindio.application.mappers.UserMapper;
 import co.edu.uniquindio.application.model.User;
+import co.edu.uniquindio.application.security.JwtTokenProvider;
 import co.edu.uniquindio.application.services.AuthService;
 import co.edu.uniquindio.application.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,6 +18,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,6 +32,8 @@ public class AuthController {
     private final AuthService authService;
     private final UserService userService;
     private final UserMapper userMapper;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
     @Operation(
@@ -45,7 +51,6 @@ public class AuthController {
         User user = userMapper.toEntity(request);
         User createdUser = authService.registerUser(user);
 
-        // Si se registra como host, crear el perfil de host
         if (Boolean.TRUE.equals(request.getIsHost())) {
             userService.convertToHost(
                     createdUser.getId(),
@@ -69,19 +74,33 @@ public class AuthController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Credenciales inválidas"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Usuario no encontrado")
     })
+
     public ResponseEntity<ApiResponse<AuthResponse>> login(
             @Valid @RequestBody LoginRequest request) {
 
-        User user = authService.loginUser(request.getEmail(), request.getPassword());
+        // 🔹 Autenticar al usuario con Spring Security
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
 
-        // En una implementación real, aquí generarías el JWT token
+        // 🔹 Generar token JWT real
+        String token = jwtTokenProvider.generateToken(authentication);
+
+        // 🔹 Obtener el User desde el AuthService
+        User user = (User) authentication.getPrincipal();
+
         AuthResponse authResponse = new AuthResponse();
         authResponse.setId(user.getId());
         authResponse.setName(user.getName());
         authResponse.setEmail(user.getEmail());
         authResponse.setRole(user.getRole());
         authResponse.setIsHost(user.getIsHost());
-        authResponse.setToken("jwt-token-here"); // Placeholder
+
+        // 🔹 Aquí va el token real
+        authResponse.setToken(token);
 
         return ResponseEntity.ok(ApiResponse.success(authResponse, "Login exitoso"));
     }
@@ -97,7 +116,7 @@ public class AuthController {
     })
     public ResponseEntity<ApiResponse<Void>> requestPasswordReset(
             @Parameter(description = "Email del usuario que solicita el restablecimiento", required = true, example = "usuario@ejemplo.com")
-            @RequestParam String email) {
+            @RequestParam(name = "email") String email) {
 
         authService.requestPasswordReset(email);
         return ResponseEntity.ok(ApiResponse.success(null, "Se ha enviado un código de restablecimiento a tu email"));
@@ -115,10 +134,10 @@ public class AuthController {
     })
     public ResponseEntity<ApiResponse<Void>> resetPassword(
             @Parameter(description = "Código de verificación recibido por email", required = true, example = "ABC123")
-            @RequestParam String code,
+            @RequestParam(name = "code") String code,
 
             @Parameter(description = "Nueva contraseña del usuario", required = true, example = "nuevaContraseña123")
-            @RequestParam String newPassword) {
+            @RequestParam(name = "newPassword") String newPassword) {
 
         authService.resetPassword(code, newPassword);
         return ResponseEntity.ok(ApiResponse.success(null, "Contraseña restablecida exitosamente"));

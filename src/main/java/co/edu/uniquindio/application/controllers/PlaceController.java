@@ -49,7 +49,7 @@ public class PlaceController {
     public ResponseEntity<ApiResponse<PlaceResponse>> createPlace(
             @Valid @RequestBody PlaceCreateRequest request,
             @Parameter(description = "ID del anfitrión que crea el alojamiento", required = true, example = "1")
-            @RequestParam Long hostId) {
+            @RequestParam(name = "hostId") Long hostId) {
 
         User host = userService.getUserById(hostId)
                 .orElseThrow(() -> new IllegalArgumentException("Anfitrión no encontrado"));
@@ -119,24 +119,30 @@ public class PlaceController {
     })
     public ResponseEntity<ApiResponse<List<PlaceResponse>>> searchAvailablePlaces(
             @Parameter(description = "Ciudad donde buscar alojamientos", required = true, example = "Bogotá")
-            @RequestParam String city,
+            @RequestParam(name = "city") String city,
 
             @Parameter(description = "Fecha y hora de check-in (formato: YYYY-MM-DDTHH:mm:ss)", required = true, example = "2024-12-25T15:00:00")
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkIn,
+            @RequestParam(name = "checkIn")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime checkIn,
 
             @Parameter(description = "Fecha y hora de check-out (formato: YYYY-MM-DDTHH:mm:ss)", required = true, example = "2024-12-30T11:00:00")
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime checkOut,
+            @RequestParam(name = "checkOut")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime checkOut,
 
             @Parameter(description = "Número de huéspedes", required = true, example = "2")
-            @RequestParam Integer guests,
+            @RequestParam(name = "guests") Integer guests,
 
-            @Parameter(description = "Precio mínimo por noche", required = false, example = "50.0")
-            @RequestParam(required = false) Double minPrice,
+            @Parameter(description = "Precio mínimo por noche", required = false, example = "50")
+            @RequestParam(name = "minPrice", required = false) Double minPrice,
 
-            @Parameter(description = "Precio máximo por noche", required = false, example = "200.0")
-            @RequestParam(required = false) Double maxPrice) {
+            @Parameter(description = "Precio máximo por noche", required = false, example = "200")
+            @RequestParam(name = "maxPrice", required = false) Double maxPrice
+    ) {
 
         List<Place> places = placeService.getAvailablePlaces(city, checkIn, checkOut, guests, minPrice, maxPrice);
+
         List<PlaceResponse> responses = places.stream()
                 .map(place -> {
                     Double avgRating = reviewService.getAverageRatingByPlace(place);
@@ -269,11 +275,11 @@ public class PlaceController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "URL de imagen inválida")
     })
     public ResponseEntity<ApiResponse<Void>> addImage(
-            @Parameter(description = "ID del alojamiento", required = true, example = "1")
-            @PathVariable Long id,
+            @Parameter(name = "id", description = "ID del alojamiento", required = true, example = "1")
+            @PathVariable("id") Long id,
 
-            @Parameter(description = "URL de la imagen a agregar", required = true, example = "https://example.com/image.jpg")
-            @RequestParam String imageUrl) {
+            @Parameter(name = "imageUrl", description = "URL de la imagen a agregar", required = true, example = "https://example.com/image.jpg")
+            @RequestParam("imageUrl") String imageUrl) {
 
         placeService.addImageToPlace(id, imageUrl);
         return ResponseEntity.ok(ApiResponse.success(null, "Imagen agregada exitosamente"));
@@ -290,11 +296,11 @@ public class PlaceController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "No autorizado para modificar este alojamiento")
     })
     public ResponseEntity<ApiResponse<Void>> removeImage(
-            @Parameter(description = "ID del alojamiento", required = true, example = "1")
-            @PathVariable Long id,
+            @Parameter(name = "id", description = "ID del alojamiento", required = true, example = "1")
+            @PathVariable("id") Long id,
 
-            @Parameter(description = "URL de la imagen a eliminar", required = true, example = "https://example.com/image.jpg")
-            @RequestParam String imageUrl) {
+            @Parameter(name = "imageUrl", description = "URL de la imagen a eliminar", required = true, example = "https://example.com/image.jpg")
+            @RequestParam("imageUrl") String imageUrl) {
 
         placeService.removeImageFromPlace(id, imageUrl);
         return ResponseEntity.ok(ApiResponse.success(null, "Imagen eliminada exitosamente"));

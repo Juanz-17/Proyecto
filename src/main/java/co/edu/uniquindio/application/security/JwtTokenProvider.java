@@ -2,7 +2,6 @@ package co.edu.uniquindio.application.security;
 
 import co.edu.uniquindio.application.model.User;
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,10 +17,10 @@ public class JwtTokenProvider {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    @Value("${app.jwt.secret:mySecretKeyForJWTGenerationInSpringBootApplication}")
+    @Value("${app.jwt.secret:mySuperSecureKeyWhichIsLongEnough123456}")
     private String jwtSecret;
 
-    @Value("${app.jwt.expiration:86400000}") // 24 horas por defecto
+    @Value("${app.jwt.expiration:86400000}") // 24 horas
     private int jwtExpirationInMs;
 
     public String generateToken(Authentication authentication) {
@@ -32,7 +31,7 @@ public class JwtTokenProvider {
 
         return Jwts.builder()
                 .setSubject(userPrincipal.getEmail())
-                .setIssuedAt(new Date())
+                .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
@@ -55,20 +54,14 @@ public class JwtTokenProvider {
                     .build()
                     .parseClaimsJws(authToken);
             return true;
-        } catch (MalformedJwtException ex) {
-            logger.error("Token JWT inválido");
-        } catch (ExpiredJwtException ex) {
-            logger.error("Token JWT expirado");
-        } catch (UnsupportedJwtException ex) {
-            logger.error("Token JWT no soportado");
-        } catch (IllegalArgumentException ex) {
-            logger.error("El string de claims JWT está vacío");
+        } catch (Exception ex) {
+            logger.error("Error al validar JWT: {}", ex.getMessage());
         }
         return false;
     }
 
     private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 }
+

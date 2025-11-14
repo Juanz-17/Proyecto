@@ -2,7 +2,8 @@ package co.edu.uniquindio.application.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import java.time.LocalDateTime;
+
+import java.time.LocalDate;
 
 @Data
 public class UserRegistrationRequest {
@@ -20,7 +21,7 @@ public class UserRegistrationRequest {
             message = "La contraseña debe contener al menos una mayúscula, una minúscula y un número")
     private String password;
 
-    private LocalDateTime dateBirth;
+    private LocalDate dateBirth;
     private String phone;
     private String photoUrl;
 

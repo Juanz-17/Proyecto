@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -59,7 +60,7 @@ public class DataLoader implements CommandLineRunner {
         user.setRole(role);
         user.setStatus(Status.ACTIVE);
         user.setPhone("+573001234567");
-        user.setDateBirth(LocalDateTime.now().minusYears(25));
+        user.setDateBirth(LocalDate.now().minusYears(25));
         user.setIsHost(isHost);
         user.setCreatedAt(LocalDateTime.now());
         return userRepository.save(user);
