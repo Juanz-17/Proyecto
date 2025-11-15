@@ -4,7 +4,6 @@ import co.edu.uniquindio.application.dto.LoginRequest;
 import co.edu.uniquindio.application.dto.UserRegistrationRequest;
 import co.edu.uniquindio.application.dto.ApiResponse;
 import co.edu.uniquindio.application.dto.AuthResponse;
-import co.edu.uniquindio.application.dto.UserResponse;
 import co.edu.uniquindio.application.mappers.UserMapper;
 import co.edu.uniquindio.application.model.User;
 import co.edu.uniquindio.application.security.JwtTokenProvider;
@@ -45,21 +44,31 @@ public class AuthController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos de registro inválidos"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El email ya está registrado")
     })
-    public ResponseEntity<ApiResponse<UserResponse>> register(
+    public ResponseEntity<ApiResponse<AuthResponse>> register(
             @Valid @RequestBody UserRegistrationRequest request) {
 
         User user = userMapper.toEntity(request);
         User createdUser = authService.registerUser(user);
 
         if (Boolean.TRUE.equals(request.getIsHost())) {
-            userService.convertToHost(
+            createdUser = userService.convertToHost(
                     createdUser.getId(),
                     request.getLegalDocument(),
                     request.getAboutMe()
             );
         }
 
-        UserResponse response = userMapper.toResponse(createdUser);
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+
+        String token = jwtTokenProvider.generateToken(authentication);
+        User authenticatedUser = (User) authentication.getPrincipal();
+        AuthResponse response = buildAuthResponse(authenticatedUser, token);
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(response, "Usuario registrado exitosamente"));
     }
@@ -92,15 +101,7 @@ public class AuthController {
         // 🔹 Obtener el User desde el AuthService
         User user = (User) authentication.getPrincipal();
 
-        AuthResponse authResponse = new AuthResponse();
-        authResponse.setId(user.getId());
-        authResponse.setName(user.getName());
-        authResponse.setEmail(user.getEmail());
-        authResponse.setRole(user.getRole());
-        authResponse.setIsHost(user.getIsHost());
-
-        // 🔹 Aquí va el token real
-        authResponse.setToken(token);
+        AuthResponse authResponse = buildAuthResponse(user, token);
 
         return ResponseEntity.ok(ApiResponse.success(authResponse, "Login exitoso"));
     }
@@ -142,4 +143,16 @@ public class AuthController {
         authService.resetPassword(code, newPassword);
         return ResponseEntity.ok(ApiResponse.success(null, "Contraseña restablecida exitosamente"));
     }
+
+    private AuthResponse buildAuthResponse(User user, String token) {
+        AuthResponse authResponse = new AuthResponse();
+        authResponse.setId(user.getId());
+        authResponse.setName(user.getName());
+        authResponse.setEmail(user.getEmail());
+        authResponse.setRole(user.getRole());
+        authResponse.setIsHost(user.getIsHost());
+        authResponse.setToken(token);
+        return authResponse;
+    }
+
 }

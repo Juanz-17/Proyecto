@@ -1,0 +1,143 @@
+{
+    "checksum": "2a1829ba7b0594d77938536f54fc2f821bb6069ceafa0054e75d9c5edb7f08b5",
+    "data": {
+    "id": "614d8b7e-c3e3-43cc-9376-ebacb5eb44b1",
+    "createdAt": 1763177683823,
+    "updatedAt": 1763177880992,
+    "title": "Ignore application.properties in Git",
+    "messages": [
+        {
+            "id": "76ec0e98-0d23-4f2e-8ab0-1fa0fbe78bbb",
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": "agrega el application.properties al gitignore"
+                }
+            ],
+            "context": {
+                "currentFile": {
+                    "path": "src/main/java/co/edu/uniquindio/application/controllers/AuthController.java",
+                    "fsPath": "C:/Users/Lenovo/Documents/GitHub/Proyecto/src/main/java/co/edu/uniquindio/application/controllers/AuthController.java",
+                    "sources": [
+                        "opened_tab"
+                    ]
+                }
+            },
+            "createdAt": 1763177684223,
+            "isInternal": false,
+            "rawContent": {
+                "type": "doc",
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": "agrega el application.properties al gitignore"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "autoAppliedRules": []
+        },
+        {
+            "id": "cf0785e7-464a-b267-8330-5a6c929ab89e",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "cliToolCall",
+                    "toolCallId": "call_49416215",
+                    "toolName": "Read",
+                    "status": "SUCCESS",
+                    "input": {
+                        "file_path": "C:/Users/Lenovo/Documents/GitHub/Proyecto/.gitignore"
+                    },
+                    "output": "Lines 1-42 of 42 from C:/Users/Lenovo/Documents/GitHub/Proyecto/.gitignore:\n.gradle\r\nbuild/\r\n!gradle/wrapper/gradle-wrapper.jar\r\n!**/src/main/**/build/\r\n!**/src/test/**/build/\r\n\r\n### IntelliJ IDEA ###\r\n.idea/modules.xml\r\n.idea/jarRepositories.xml\r\n.idea/compiler.xml\r\n.idea/libraries/\r\n*.iws\r\n*.iml\r\n*.ipr\r\nout/\r\n!**/src/main/**/out/\r\n!**/src/test/**/out/\r\n\r\n### Eclipse ###\r\n.apt_generated\r\n.classpath\r\n.factorypath\r\n.project\r\n.settings\r\n.springBeans\r\n.sts4-cache\r\nbin/\r\n!**/src/main/**/bin/\r\n!**/src/test/**/bin/\r\n\r\n### NetBeans ###\r\n/nbproject/private/\r\n/nbbuild/\r\n/dist/\r\n/nbdist/\r\n/.nb-gradle/\r\n\r\n### VS Code ###\r\n.vscode/\r\n\r\n### Mac OS ###\r\n.DS_Store"
+                }
+            ],
+            "context": {
+                "author": "Code agent",
+                "operationId": "1c43fab3-74b4-475c-9e1e-fa854e5dc017",
+                "cliSessionId": "21959d35-2c0d-4bd1-abc1-a6097f0e0def"
+            },
+            "createdAt": 1763177849482,
+            "isInternal": false
+        },
+        {
+            "id": "92bfdd04-0ad5-d2bb-5a7a-c7efc7527d01",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "cliToolCall",
+                    "toolCallId": "call_98525830",
+                    "toolName": "Edit",
+                    "status": "SUCCESS",
+                    "input": {
+                        "file_path": "C:/Users/Lenovo/Documents/GitHub/Proyecto/.gitignore",
+                        "old_string": ".DS_Store",
+                        "new_string": ".DS_Store\napplication.properties"
+                    },
+                    "output": "    38→### VS Code ###\n    39→.vscode/\n    40→\n    41→### Mac OS ###\n    42→.DS_Store\n    43→application.properties"
+                },
+                {
+                    "type": "codeHunk",
+                    "lineBasedDiff": "--- C:/Users/Lenovo/Documents/GitHub/Proyecto/.gitignore\n+++ C:/Users/Lenovo/Documents/GitHub/Proyecto/.gitignore\n@@ -40,3 +40,4 @@\n \n ### Mac OS ###\n .DS_Store\n+application.properties",
+                    "refToolCallId": "call_98525830",
+                    "language": "gitignore"
+                }
+            ],
+            "context": {
+                "author": "Code agent",
+                "operationId": "1c43fab3-74b4-475c-9e1e-fa854e5dc017",
+                "cliSessionId": "21959d35-2c0d-4bd1-abc1-a6097f0e0def"
+            },
+            "createdAt": 1763177873952,
+            "isInternal": false
+        },
+        {
+            "id": "49fb19f4-f871-8a8a-ade1-5b36e8464612",
+            "role": "assistant",
+            "content": [
+                {
+                    "type": "codePatch",
+                    "diffs": [
+                        {
+                            "path": ".gitignore",
+                            "fsPath": "C:/Users/Lenovo/Documents/GitHub/Proyecto/.gitignore",
+                            "patch": "@@ -4,17 +4,15 @@\n adle\n-%0D\n %0Abuild/\n-%0D\n %0A!gr\n@@ -42,17 +42,16 @@\n pper.jar\n-%0D\n %0A!**/src\n@@ -65,17 +65,16 @@\n */build/\n-%0D\n %0A!**/src\n@@ -88,19 +88,17 @@\n */build/\n-%0D%0A%0D\n+%0A\n %0A### Int\n@@ -111,17 +111,16 @@\n IDEA ###\n-%0D\n %0A.idea/m\n@@ -125,25 +125,24 @@\n /modules.xml\n-%0D\n %0A.idea/jarRe\n@@ -151,25 +151,24 @@\n sitories.xml\n-%0D\n %0A.idea/compi\n@@ -174,17 +174,16 @@\n iler.xml\n-%0D\n %0A.idea/l\n@@ -195,36 +195,31 @@\n ies/\n-%0D\n %0A*.iws\n-%0D\n %0A*.iml\n-%0D\n %0A*.ipr\n-%0D\n %0Aout/\n-%0D\n %0A!**\n@@ -235,17 +235,16 @@\n /**/out/\n-%0D\n %0A!**/src\n@@ -256,19 +256,17 @@\n /**/out/\n-%0D%0A%0D\n+%0A\n %0A### Ecl\n@@ -273,17 +273,16 @@\n ipse ###\n-%0D\n %0A.apt_ge\n@@ -288,17 +288,16 @@\n enerated\n-%0D\n %0A.classp\n@@ -299,17 +299,16 @@\n lasspath\n-%0D\n %0A.factor\n@@ -312,17 +312,16 @@\n torypath\n-%0D\n %0A.projec\n@@ -321,17 +321,16 @@\n .project\n-%0D\n %0A.settin\n@@ -331,17 +331,16 @@\n settings\n-%0D\n %0A.spring\n@@ -344,17 +344,16 @@\n ingBeans\n-%0D\n %0A.sts4-c\n@@ -360,15 +360,13 @@\n ache\n-%0D\n %0Abin/\n-%0D\n %0A!**\n@@ -382,17 +382,16 @@\n /**/bin/\n-%0D\n %0A!**/src\n@@ -403,19 +403,17 @@\n /**/bin/\n-%0D%0A%0D\n+%0A\n %0A### Net\n@@ -421,17 +421,16 @@\n eans ###\n-%0D\n %0A/nbproj\n@@ -441,17 +441,16 @@\n private/\n-%0D\n %0A/nbbuil\n@@ -455,17 +455,15 @@\n ild/\n-%0D\n %0A/dist/\n-%0D\n %0A/nb\n@@ -467,17 +467,16 @@\n /nbdist/\n-%0D\n %0A/.nb-gr\n@@ -480,19 +480,17 @@\n -gradle/\n-%0D%0A%0D\n+%0A\n %0A### VS \n@@ -497,17 +497,16 @@\n Code ###\n-%0D\n %0A.vscode\n@@ -510,11 +510,9 @@\n ode/\n-%0D%0A%0D\n+%0A\n %0A###\n@@ -526,9 +526,8 @@\n  ###\n-%0D\n %0A.DS\n@@ -532,8 +532,31 @@\n DS_Store\n+%0Aapplication.properties\n",
+                            "isNew": false,
+                            "isApplied": true,
+                            "timestamp": 1763177874908
+                        }
+                    ]
+                }
+            ],
+            "context": {
+                "author": "Code agent",
+                "operationId": "1c43fab3-74b4-475c-9e1e-fa854e5dc017",
+                "cliSessionId": "21959d35-2c0d-4bd1-abc1-a6097f0e0def",
+                "usageStatistics": {
+                    "llmCallsUsedForAnswer": 3.0,
+                    "llmCallsUsedTotal": 3.0,
+                    "llmCallsLimit": 280.0,
+                    "limitRenewalMillisecondTimestamp": 1763190000000
+                }
+            },
+            "createdAt": 1763177880992,
+            "isInternal": false
+        }
+    ],
+    "isAgent": true,
+    "isNameGenerated": true,
+    "isCustomAgent": false,
+    "isUnitTestsAgent": false,
+    "isE2EAgent": false,
+    "isWebDevAgent": false,
+    "isQnaAgent": false,
+    "isRepoInfoAgent": false,
+    "model": "default",
+    "agentsRuntime": "zen-cli"
+}
+}

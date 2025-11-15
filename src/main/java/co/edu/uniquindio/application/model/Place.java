@@ -32,7 +32,7 @@ public class Place {
 
     @ElementCollection
     @CollectionTable(name = "place_images", joinColumns = @JoinColumn(name = "place_id"))
-    @Column(name = "image_url")
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private List<String> images = new ArrayList<>();
 
     @ElementCollection
