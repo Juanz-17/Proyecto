@@ -56,7 +56,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/places/**").permitAll()
 
                         // Endpoints protegidos
-                        .requestMatchers("/api/users/**").authenticated()
+                        .requestMatchers("/api/users/**").permitAll()
                         .requestMatchers("/api/bookings/**").authenticated()
                         .requestMatchers("/api/reviews/**").authenticated()
 
